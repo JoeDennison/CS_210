@@ -1,0 +1,106 @@
+global L
+global northwall
+global southwall
+global westwall
+global eastwall
+global xdir
+global ydir
+global nextdir
+global lastdir
+
+procedure main()
+	L:= list(24, repl(" ", 78))
+	L[5][5:10] := "-----"
+	L[6][5] := "|"
+	L[6][9] := "|"
+	L[7][5] := "|"
+	L[7][9] := "|"
+	L[8][5:10] := "-----"
+# Make door for starting room
+	startdoor := ?["east","south"]
+	write("Starting door is on the ", startdoor, " wall.")
+	northwall := 5
+	southwall := 8
+	westwall := 5
+	eastwall := 9
+	if startdoor == ("south") then{
+		j := westwall+ ?(eastwall-westwall-1)
+		L[southwall][j] := "+"
+		xdir := j
+		ydir := southwall
+		nextdir := "south"
+	}
+	else {
+		j := northwall + ?(southwall-northwall-1)
+		L[j][eastwall] := "+"
+		xdir := eastwall
+		ydir := j
+		nextdir := "east"
+	}
+# Make starting marker in room
+	L[6][6] := "<"
+# Make coridor that goes out of starting room
+	if nextdir == "south" then{
+		ydir +:= 1
+		lastdir := "north"
+	}
+	else{#east
+		xdir +:= 1
+		lastdir := "west"
+	}
+	L[ydir][xdir] := "#"
+# Make 5 more #'s
+	nextdirmake()
+	nextpath()
+	nextdirmake()
+	nextpath()
+	nextdirmake()
+	nextpath()
+	nextdirmake()
+	nextpath()
+	nextdirmake()
+	nextpath()
+#Check if direction goes into a wall
+#New room only after south or west corridor
+#when making new room, check if margins are too small less than 2x2
+#make random wall sizes with margin in mind
+#Make 50/50 change of next corrider from new room or in the middle of old trail
+
+# Make two more rooms
+#	When making the door, randomly choose a direction but make the first and last entry of the wall being not optional
+	show()
+end
+
+procedure nextdirmake()
+	if lastdir == ("north") then{
+	nextdir := ?["west", "east", "south"]}
+	else if lastdir == ("west") then{
+	nextdir := ?["north", "east", "south"]}
+	else if lastdir == ("east") then{
+	nextdir := ?["north", "west", "south"]}
+	else if lastdir == ("south") then{
+	nextdir := ?["north", "east", "west"]}
+end
+
+#Remake how to make the last direction variable
+procedure nextpath()
+	if nextdir == "north" then{
+		ydir -:= 1
+		lastdir := "south"
+	}else if nextdir == "west" then{
+		xdir -:= 1
+		lastdir := "east"
+	}else if nextdir == "east" then{
+		xdir +:= 1
+		lastdir := "west"
+	}else if nextdir == "south" then{
+		ydir +:= 1
+		lastdir := "north"
+	}	
+L[ydir][xdir] := "#"
+end
+
+
+procedure show()
+	every write(!L)
+end
